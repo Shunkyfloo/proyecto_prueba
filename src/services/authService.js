@@ -37,6 +37,7 @@ function mockLogin({ email, password }) {
       user: {
         id: demoUser.id,
         full_name: demoUser.full_name,
+        name: demoUser.full_name,
         email,
         role: demoUser.role,
       },
@@ -44,14 +45,110 @@ function mockLogin({ email, password }) {
   }
 }
 
+const REGISTERED_USERS_KEY = "registeredUsers"
+
+function getRegisteredUsersStore() {
+  const stored = localStorage.getItem(REGISTERED_USERS_KEY)
+  return stored ? JSON.parse(stored) : []
+}
+
+function saveRegisteredUser(user) {
+  const users = getRegisteredUsersStore()
+  users.push(user)
+  localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users))
+}
+
+function mockRegister({ full_name, email, password }) {
+  const existingDemo = DEMO_USERS[email]
+  const existingRegistered = getRegisteredUsersStore().some((user) => user.email === email)
+
+  if (existingDemo || existingRegistered) {
+    throw new Error("Este correo ya está registrado")
+  }
+
+  const newUser = {
+    id: Date.now(),
+    full_name,
+    name: full_name,
+    email,
+    password,
+    role: "user",
+    photo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}`,
+    company: "SportClub",
+    phone: "—",
+  }
+
+  saveRegisteredUser(newUser)
+
+  return {
+    ok: true,
+    message: "Registro exitoso.",
+    data: {
+      token: `mock-token-user-${newUser.id}`,
+      user: {
+        id: newUser.id,
+        full_name: newUser.full_name,
+        name: newUser.full_name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    },
+  }
+}
+
+export async function registerUser(userData) {
+  if (USE_MOCK) {
+    return mockRegister(userData)
+  }
+
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.message || "Error al registrarse")
+  }
+
+  return data
+}
+
 export async function loginUser(credentials) {
   if (USE_MOCK) {
+    const registeredUser = getRegisteredUsersStore().find(
+      (user) => user.email === credentials.email && user.password === credentials.password,
+    )
+
+    if (registeredUser) {
+      return {
+        ok: true,
+        message: "Login exitoso.",
+        data: {
+          token: `mock-token-user-${registeredUser.id}`,
+          user: {
+            id: registeredUser.id,
+            full_name: registeredUser.full_name,
+            name: registeredUser.full_name,
+            email: registeredUser.email,
+            role: registeredUser.role,
+          },
+        },
+      }
+    }
+
     return mockLogin(credentials)
   }
 
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(credentials),
   })
 
@@ -79,7 +176,7 @@ export function getUser() {
 }
 
 export function isAuthenticated() {
-  return !!getToken()
+  return Boolean(getToken())
 }
 
 export function logout() {

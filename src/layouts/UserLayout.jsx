@@ -17,13 +17,12 @@ function UserLayout() {
         <Container>
           <Navbar.Brand>SportClub Usuario</Navbar.Brand>
           <Nav className="me-auto">
+            <Link className="nav-link" to="/">Inicio</Link>
             <Link className="nav-link" to="/user/dashboard">
               Dashboard
             </Link>
           </Nav>
-          <span className="text-white me-3">
-            {user?.full_name || user?.name}
-          </span>
+          <span className="text-white me-3">{user?.name}</span>
           <Button variant="outline-light" onClick={handleLogout}>
             Cerrar sesión
           </Button>

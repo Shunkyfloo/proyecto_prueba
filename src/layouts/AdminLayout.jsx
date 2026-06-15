@@ -21,9 +21,7 @@ function AdminLayout() {
               Dashboard
             </Link>
           </Nav>
-          <span className="text-white me-3">
-            {user?.full_name || user?.name}
-          </span>
+          <span className="text-white me-3">{user?.name}</span>
           <Button variant="outline-light" onClick={handleLogout}>
             Cerrar sesión
           </Button>

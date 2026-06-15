@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "../pages/Home"
+import GetStarted from "../pages/GetStarted"
 import Login from "../pages/Login"
+import Register from "../pages/Register"
+import UsersRegistrationDashboard from "../pages/UsersRegistrationDashboard"
 import Unauthorized from "../pages/Unauthorized"
 import UserDashboard from "../pages/user/UserDashboard"
 import CoachDashboard from "../pages/coach/CoachDashboard"
@@ -16,7 +19,10 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/comenzar" element={<GetStarted />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Register />} />
+        <Route path="/dashboard/registros" element={<UsersRegistrationDashboard />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         <Route

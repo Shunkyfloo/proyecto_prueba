@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Alert, Button, Card, Container, Form, Spinner } from "react-bootstrap"
 import { loginUser, saveSession } from "../services/authService"
 
@@ -47,7 +47,6 @@ function Login() {
                 placeholder="Ingrese su correo"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -57,10 +56,9 @@ function Login() {
                 placeholder="Ingrese su contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
             </Form.Group>
-            <Button type="submit" variant="primary" className="w-100" disabled={loading}>
+            <Button type="submit" variant="primary" className="w-100 mb-3" disabled={loading}>
               {loading ? (
                 <>
                   <Spinner size="sm" animation="border" /> Ingresando...
@@ -69,6 +67,10 @@ function Login() {
                 "Ingresar"
               )}
             </Button>
+            <p className="text-center mb-0">
+              ¿No tienes cuenta?{" "}
+              <Link to="/registro">Registrarse</Link>
+            </p>
           </Form>
         </Card.Body>
       </Card>
