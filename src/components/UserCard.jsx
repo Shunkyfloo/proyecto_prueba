@@ -5,7 +5,6 @@ function UserCard({ user }) {
       <h2>{user.name}</h2>
       <p>{user.email}</p>
       <p>{user.company}</p>
-      <p>{user.phone}</p>
     </div>
   )
 }

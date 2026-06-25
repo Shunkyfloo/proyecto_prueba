@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import BrandLogo from "../components/BrandLogo"
 
 function Home() {
   return (
@@ -6,7 +7,7 @@ function Home() {
       <div className="welcome-overlay" />
 
       <header className="welcome-header">
-        <span className="welcome-logo">SportClub</span>
+        <BrandLogo to="/" size="lg" />
       </header>
 
       <main className="welcome-main">

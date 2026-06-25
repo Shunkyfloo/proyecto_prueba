@@ -75,7 +75,6 @@ function mockRegister({ full_name, email, password }) {
     role: "user",
     photo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(full_name)}`,
     company: "SportClub",
-    phone: "—",
   }
 
   saveRegisteredUser(newUser)
