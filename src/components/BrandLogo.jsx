@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom"
+import logoSportclub from "../assets/logo-sportclub.png"
 
 function BrandLogo({ to = "/", className = "", size = "md" }) {
   const image = (
     <img
-      src="/logo-sportclub.png"
+      src={logoSportclub}
       alt="SportClub"
       className={`brand-logo brand-logo--${size} ${className}`.trim()}
     />

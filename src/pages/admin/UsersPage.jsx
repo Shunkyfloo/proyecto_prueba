@@ -90,7 +90,7 @@ function UsersPage() {
       <header className="users-dashboard-header mb-4">
         <div>
           <h4 className="mb-1">Gestión de Usuarios</h4>
-          <p className="mb-0 module-subtitle">Administra los usuarios del club desde la API.</p>
+          <p className="mb-0 module-subtitle">Consulta, crea, edita y elimina usuarios del club.</p>
         </div>
         <Link to="/admin/dashboard" className="welcome-btn welcome-btn-secondary">
           Volver al panel

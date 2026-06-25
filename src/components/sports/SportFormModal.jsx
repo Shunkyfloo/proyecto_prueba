@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Alert, Button, Form, Modal } from "react-bootstrap"
+import { Button, Form, Modal } from "react-bootstrap"
 
 const initialForm = {
   name: "",
@@ -140,10 +140,10 @@ function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button className="theme-btn-outline" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant="primary" type="submit">
+          <Button className="theme-btn" type="submit">
             Guardar
           </Button>
         </Modal.Footer>
