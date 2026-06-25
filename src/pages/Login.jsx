@@ -34,12 +34,16 @@ function Login() {
   }
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: "24rem" }} className="shadow">
-        <Card.Body>
-          <Card.Title className="text-center mb-4">SportClub Login</Card.Title>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
+    <div className="auth-page">
+      <div className="auth-page-overlay" />
+      <Container className="auth-page-container d-flex justify-content-center align-items-center min-vh-100">
+        <Card className="auth-card shadow-lg">
+          <Card.Body>
+            <Card.Title className="auth-card-title text-center mb-4">
+              SportClub Login
+            </Card.Title>
+            {error && <Alert variant="danger" className="auth-alert">{error}</Alert>}
+            <Form onSubmit={handleSubmit} className="auth-form">
             <Form.Group className="mb-3">
               <Form.Label>Correo</Form.Label>
               <Form.Control
@@ -58,7 +62,7 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </Form.Group>
-            <Button type="submit" variant="primary" className="w-100 mb-3" disabled={loading}>
+            <Button type="submit" className="auth-btn w-100 mb-3" disabled={loading}>
               {loading ? (
                 <>
                   <Spinner size="sm" animation="border" /> Ingresando...
@@ -67,14 +71,15 @@ function Login() {
                 "Ingresar"
               )}
             </Button>
-            <p className="text-center mb-0">
+            <p className="text-center mb-0 auth-footer-text">
               ¿No tienes cuenta?{" "}
-              <Link to="/registro">Registrarse</Link>
+              <Link to="/registro" className="auth-link">Registrarse</Link>
             </p>
           </Form>
         </Card.Body>
       </Card>
     </Container>
+    </div>
   )
 }
 

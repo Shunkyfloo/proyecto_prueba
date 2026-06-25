@@ -8,6 +8,8 @@ import Unauthorized from "../pages/Unauthorized"
 import UserDashboard from "../pages/user/UserDashboard"
 import CoachDashboard from "../pages/coach/CoachDashboard"
 import AdminDashboard from "../pages/admin/AdminDashboard"
+import UsersPage from "../pages/admin/UsersPage"
+import SportsPage from "../pages/admin/SportsPage"
 import UserLayout from "../layouts/UserLayout"
 import CoachLayout from "../layouts/CoachLayout"
 import AdminLayout from "../layouts/AdminLayout"
@@ -16,7 +18,7 @@ import RoleRoute from "./RoleRoute"
 
 function AppRoutes() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/comenzar" element={<GetStarted />} />
@@ -56,6 +58,8 @@ function AppRoutes() {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="usuarios" element={<UsersPage />} />
+          <Route path="deportes" element={<SportsPage />} />
         </Route>
 
         <Route

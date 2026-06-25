@@ -6,8 +6,9 @@ import Swal from "sweetalert2"
 import UserFormModal from "../components/users/UserFormModal"
 import { getUser, logout } from "../services/authService"
 import {
+  createUser,
   deleteUser,
-  getRegisteredUsers,
+  getUsers,
   updateUser,
 } from "../services/userService"
 
@@ -22,15 +23,21 @@ function UsersRegistrationDashboard() {
   const currentUser = getUser()
   const isAdmin = currentUser?.role === "admin"
 
-  const loadUsers = () => {
-    setUsers(getRegisteredUsers())
+  const loadUsers = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const response = await getUsers()
+      setUsers(response.data || [])
+    } catch (loadError) {
+      setError(loadError.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    setLoading(true)
-    setError("")
     loadUsers()
-    setLoading(false)
   }, [])
 
   const closeModal = () => {
@@ -70,12 +77,15 @@ function UsersRegistrationDashboard() {
     })
   }
 
-  const handleEditRequest = async (user) => {
-    const displayName = user.full_name || user.name
+  const openCreateModal = async () => {
+    setSelectedUser(null)
+    setShowModal(true)
+  }
 
+  const handleEditRequest = async (user) => {
     const confirmed = await confirmAction({
       title: "¿Editar usuario?",
-      text: `¿Está seguro de editar a ${displayName}?`,
+      text: `¿Está seguro de editar a ${user.full_name}?`,
       confirmText: "Sí, editar",
     })
 
@@ -83,32 +93,32 @@ function UsersRegistrationDashboard() {
       return
     }
 
-    setSelectedUser({
-      id: user.id,
-      full_name: user.full_name || user.name,
-      email: user.email,
-      role: user.role || "user",
-    })
+    setSelectedUser(user)
     setShowModal(true)
   }
 
   const handleSave = async (formData) => {
     try {
-      await updateUser(selectedUser.id, formData)
-      closeModal()
-      loadUsers()
-      showSuccess("Usuario actualizado correctamente")
+      if (selectedUser) {
+        await updateUser(selectedUser.id, formData)
+        closeModal()
+        await loadUsers()
+        showSuccess("Usuario actualizado correctamente")
+      } else {
+        await createUser(formData)
+        closeModal()
+        await loadUsers()
+        showSuccess("Usuario creado correctamente")
+      }
     } catch (saveError) {
       showError(saveError.message)
     }
   }
 
   const handleDeleteRequest = async (user) => {
-    const displayName = user.full_name || user.name
-
     const confirmed = await confirmAction({
       title: "¿Eliminar usuario?",
-      text: `¿Está seguro de eliminar a ${displayName}? Esta acción no se puede deshacer.`,
+      text: `¿Está seguro de eliminar a ${user.full_name}? Esta acción no se puede deshacer.`,
       confirmText: "Sí, eliminar",
     })
 
@@ -117,8 +127,8 @@ function UsersRegistrationDashboard() {
     }
 
     try {
-      await deleteUser(user.id, user.email)
-      loadUsers()
+      await deleteUser(user.id)
+      await loadUsers()
       showSuccess("Usuario eliminado permanentemente")
     } catch (deleteError) {
       showError(deleteError.message)
@@ -138,15 +148,26 @@ function UsersRegistrationDashboard() {
         <div>
           <BrandLogo to="/" size="lg" className="users-dashboard-logo" />
           <h1>Dashboard de registros de usuarios</h1>
-          <p>Usuarios registrados en la plataforma. Solo aparecen registros reales.</p>
+          <p>Usuarios registrados en la plataforma desde la API del club.</p>
         </div>
-        <button
-          type="button"
-          className="welcome-btn welcome-btn-primary"
-          onClick={handleLogout}
-        >
-          Cerrar sesión
-        </button>
+        <div className="d-flex gap-2">
+          {isAdmin && (
+            <button
+              type="button"
+              className="welcome-btn welcome-btn-secondary"
+              onClick={openCreateModal}
+            >
+              Nuevo usuario
+            </button>
+          )}
+          <button
+            type="button"
+            className="welcome-btn welcome-btn-primary"
+            onClick={handleLogout}
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </header>
 
       {loading && (
@@ -175,7 +196,6 @@ function UsersRegistrationDashboard() {
                   <th>#</th>
                   <th>Nombre</th>
                   <th>Correo</th>
-                  <th>Empresa</th>
                   <th>Rol</th>
                   {isAdmin && <th className="users-dashboard-actions-col">Acciones</th>}
                 </tr>
@@ -183,17 +203,16 @@ function UsersRegistrationDashboard() {
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="users-dashboard-empty">
+                    <td colSpan={isAdmin ? 5 : 4} className="users-dashboard-empty">
                       No hay usuarios registrados todavía.
                     </td>
                   </tr>
                 ) : (
                   users.map((user, index) => (
-                    <tr key={`${user.source}-${user.id}-${user.email}`}>
+                    <tr key={user.id}>
                       <td>{index + 1}</td>
-                      <td>{user.full_name || user.name}</td>
+                      <td>{user.full_name}</td>
                       <td>{user.email}</td>
-                      <td>{user.company}</td>
                       <td>
                         <span className={`users-dashboard-role users-dashboard-role--${user.role}`}>
                           {user.role === "admin"

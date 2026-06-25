@@ -20,23 +20,31 @@ function CoachDashboard() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const loadClients = () => {
-    const clientList = getCoachClients()
-    setClients(clientList)
+  const loadClients = async () => {
+    try {
+      setLoading(true)
+      const clientList = await getCoachClients()
+      setClients(clientList)
 
-    if (selectedClientId) {
-      setSelectedClient(getClientById(selectedClientId))
+      if (selectedClientId) {
+        const client = await getClientById(selectedClientId)
+        setSelectedClient(client)
+      }
+    } catch (error) {
+      Swal.fire("Error", error.message, "error")
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
     loadClients()
-    setLoading(false)
   }, [])
 
-  const handleSelectClient = (client) => {
+  const handleSelectClient = async (client) => {
     setSelectedClientId(client.id)
-    setSelectedClient(getClientById(client.id))
+    const detail = await getClientById(client.id)
+    setSelectedClient(detail)
   }
 
   const handleSavePlan = async (plan) => {
@@ -46,15 +54,22 @@ function CoachDashboard() {
 
     try {
       setSaving(true)
-      const updated = updateClientPlan(selectedClient.id, plan)
-      setSelectedClient(updated)
-      loadClients()
+      const updated = updateClientPlan(
+        selectedClient.id,
+        plan,
+        selectedClient.email,
+      )
+      setSelectedClient({
+        ...selectedClient,
+        coachPlan: updated.coachPlan,
+      })
+      await loadClients()
 
       Swal.fire({
         title: "Plan guardado",
         text: "El plan del cliente se actualizó correctamente.",
         icon: "success",
-        confirmButtonColor: "#9333ea",
+        confirmButtonColor: "#16a34a",
       })
     } catch (error) {
       Swal.fire({
@@ -159,8 +174,8 @@ function CoachDashboard() {
                               <span
                                 className={
                                   hasPlan(client)
-                                    ? "users-dashboard-role users-dashboard-role--admin"
-                                    : "users-dashboard-role users-dashboard-role--coach"
+                                    ? "users-dashboard-role users-dashboard-role--coach"
+                                    : "users-dashboard-role users-dashboard-role--user"
                                 }
                               >
                                 {hasPlan(client) ? "Con plan" : "Sin plan"}

@@ -28,15 +28,15 @@ function Home() {
       </main>
 
       <section id="features" className="welcome-features">
-        <article className="welcome-feature">
+        <article className="welcome-feature welcome-feature--user">
           <h3>Usuarios</h3>
           <p>Reserva clases y gestiona tu perfil deportivo.</p>
         </article>
-        <article className="welcome-feature">
+        <article className="welcome-feature welcome-feature--coach">
           <h3>Coaches</h3>
           <p>Organiza horarios, alumnos y entrenamientos.</p>
         </article>
-        <article className="welcome-feature">
+        <article className="welcome-feature welcome-feature--admin">
           <h3>Administración</h3>
           <p>Control total del club en un solo panel.</p>
         </article>

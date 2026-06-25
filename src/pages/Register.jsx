@@ -21,8 +21,8 @@ function Register() {
       return
     }
 
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres")
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres")
       return
     }
 
@@ -40,12 +40,16 @@ function Register() {
   }
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: "26rem" }} className="shadow">
-        <Card.Body>
-          <Card.Title className="text-center mb-4">Crear cuenta</Card.Title>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
+    <div className="auth-page">
+      <div className="auth-page-overlay" />
+      <Container className="auth-page-container d-flex justify-content-center align-items-center min-vh-100">
+        <Card className="auth-card shadow-lg">
+          <Card.Body>
+            <Card.Title className="auth-card-title text-center mb-4">
+              Crear cuenta
+            </Card.Title>
+            {error && <Alert variant="danger" className="auth-alert">{error}</Alert>}
+            <Form onSubmit={handleSubmit} className="auth-form">
             <Form.Group className="mb-3">
               <Form.Label>Nombre completo</Form.Label>
               <Form.Control
@@ -70,7 +74,7 @@ function Register() {
               <Form.Label>Contraseña</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -86,7 +90,7 @@ function Register() {
                 required
               />
             </Form.Group>
-            <Button type="submit" variant="primary" className="w-100 mb-3" disabled={loading}>
+            <Button type="submit" className="auth-btn w-100 mb-3" disabled={loading}>
               {loading ? (
                 <>
                   <Spinner size="sm" animation="border" /> Registrando...
@@ -95,14 +99,15 @@ function Register() {
                 "Registrarse"
               )}
             </Button>
-            <p className="text-center mb-0">
+            <p className="text-center mb-0 auth-footer-text">
               ¿Ya tienes cuenta?{" "}
-              <Link to="/login">Iniciar sesión</Link>
+              <Link to="/login" className="auth-link">Iniciar sesión</Link>
             </p>
           </Form>
         </Card.Body>
       </Card>
     </Container>
+    </div>
   )
 }
 

@@ -33,18 +33,34 @@ function AdminDashboard() {
 
       <div className="admin-dashboard-actions">
         <Link
-          to="/dashboard/registros"
-          className="users-dashboard-list-wrapper admin-action-card"
+          to="/admin/usuarios"
+          className="users-dashboard-list-wrapper admin-action-card admin-action-card--users"
         >
           <div className="admin-action-card-header">
-            <h2>Registros de usuarios</h2>
+            <h2>Gestión de usuarios</h2>
           </div>
           <div className="admin-action-card-body">
             <p>
-              Consulta, edita y elimina los usuarios registrados en la
+              Consulta, crea, edita y elimina los usuarios registrados en la
               plataforma.
             </p>
-            <span className="admin-action-link">Ir al dashboard →</span>
+            <span className="admin-action-link">Ir al módulo →</span>
+          </div>
+        </Link>
+
+        <Link
+          to="/admin/deportes"
+          className="users-dashboard-list-wrapper admin-action-card admin-action-card--sports"
+        >
+          <div className="admin-action-card-header">
+            <h2>Gestión de deportes</h2>
+          </div>
+          <div className="admin-action-card-body">
+            <p>
+              Administra los deportes del club: crear, editar, eliminar y
+              cambiar su estado.
+            </p>
+            <span className="admin-action-link">Ir al módulo →</span>
           </div>
         </Link>
       </div>

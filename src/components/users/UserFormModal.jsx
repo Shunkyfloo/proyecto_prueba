@@ -31,6 +31,9 @@ function UserFormModal({ show, handleClose, handleSave,selectedUser }) {
  }
  const onSubmit = (event) => {
  event.preventDefault()
+ if (!selectedUser && formData.password.length < 8) {
+   return
+ }
  handleSave(formData)
  }
  return (
@@ -71,6 +74,7 @@ function UserFormModal({ show, handleClose, handleSave,selectedUser }) {
  value={formData.password}
  onChange={handleChange}
  required
+ minLength={8}
  />
  </Form.Group>
  )}

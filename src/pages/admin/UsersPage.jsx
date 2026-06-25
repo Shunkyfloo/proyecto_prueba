@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Badge, Button, Card, Spinner, Table } from "react-bootstrap"
+import { Link } from "react-router-dom"
+import { Button, Card, Spinner, Table } from "react-bootstrap"
 import Swal from "sweetalert2"
 import UserFormModal from "../../components/users/UserFormModal"
 import {
@@ -65,7 +66,7 @@ function UsersPage() {
   const handleDelete = async (user) => {
     const result = await Swal.fire({
       title: "¿Eliminar usuario?",
-      text: `Se eliminará a ${user.name}`,
+      text: `Se eliminará a ${user.full_name}`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Sí, eliminar",
@@ -85,10 +86,21 @@ function UsersPage() {
   }
 
   return (
-    <Card className="shadow-sm">
+    <div className="admin-dashboard">
+      <header className="users-dashboard-header mb-4">
+        <div>
+          <h4 className="mb-1">Gestión de Usuarios</h4>
+          <p className="mb-0 module-subtitle">Administra los usuarios del club desde la API.</p>
+        </div>
+        <Link to="/admin/dashboard" className="welcome-btn welcome-btn-secondary">
+          Volver al panel
+        </Link>
+      </header>
+
+    <Card className="shadow-sm admin-module-card admin-module-card--users">
       <Card.Header className="d-flex justify-content-between align-items-center">
-        <h4 className="mb-0">Gestión de Usuarios</h4>
-        <Button variant="primary" onClick={openCreateModal}>
+        <h4 className="mb-0">Listado de usuarios</h4>
+        <Button className="theme-btn" onClick={openCreateModal}>
           Nuevo Usuario
         </Button>
       </Card.Header>
@@ -117,34 +129,23 @@ function UsersPage() {
                   <td>{user.full_name}</td>
                   <td>{user.email}</td>
                   <td>
-                    <Badge
-                      bg={
-                        user.role === "admin"
-                          ? "success"
-                          : user.role === "user"
-                          ? "info"
-                          : "secondary"
-                      }
-                    >
+                    <span className={`users-dashboard-role users-dashboard-role--${user.role}`}>
                       {user.role === "admin"
                         ? "Administrador"
                         : user.role === "user"
                         ? "Usuario"
                         : "Entrenador"}
-                    </Badge>
+                    </span>
                   </td>
                   <td>
                     <Button
-                      variant="warning"
-                      size="sm"
-                      className="me-2"
+                      className="theme-btn-warning btn-sm me-2"
                       onClick={() => openEditModal(user)}
                     >
                       Editar
                     </Button>
                     <Button
-                      variant="danger"
-                      size="sm"
+                      className="theme-btn-danger btn-sm"
                       onClick={() => handleDelete(user)}
                     >
                       Eliminar
@@ -164,6 +165,7 @@ function UsersPage() {
         selectedUser={selectedUser}
       />
     </Card>
+    </div>
   )
 }
 
