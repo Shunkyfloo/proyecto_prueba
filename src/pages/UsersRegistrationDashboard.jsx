@@ -148,7 +148,7 @@ function UsersRegistrationDashboard() {
         <div>
           <BrandLogo to="/" size="lg" className="users-dashboard-logo" />
           <h1>Dashboard de registros de usuarios</h1>
-          <p>Usuarios registrados en la plataforma desde la API del club.</p>
+          <p>Usuarios registrados en la plataforma.</p>
         </div>
         <div className="d-flex gap-2">
           {isAdmin && (
