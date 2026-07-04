@@ -1,215 +1,78 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Alert, Col, Row, Spinner, Table } from "react-bootstrap"
+import { Link } from "react-router-dom"
 import Swal from "sweetalert2"
-import BrandLogo from "../../components/BrandLogo"
-import ClientDetailPanel from "../../components/coach/ClientDetailPanel"
-import { getUser, logout } from "../../services/authService"
-import {
-  getClientById,
-  getCoachClients,
-  updateClientPlan,
-} from "../../services/userService"
+import LoadingState from "../../components/common/LoadingState"
+import PageHeader from "../../components/layout/PageHeader"
+import { getCoachDashboard } from "../../services/coachService"
+import { getUser } from "../../services/authService"
 
 function CoachDashboard() {
-  const navigate = useNavigate()
   const coach = getUser()
-  const [clients, setClients] = useState([])
-  const [selectedClientId, setSelectedClientId] = useState(null)
-  const [selectedClient, setSelectedClient] = useState(null)
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-
-  const loadClients = async () => {
-    try {
-      setLoading(true)
-      const clientList = await getCoachClients()
-      setClients(clientList)
-
-      if (selectedClientId) {
-        const client = await getClientById(selectedClientId)
-        setSelectedClient(client)
-      }
-    } catch (error) {
-      Swal.fire("Error", error.message, "error")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
-    loadClients()
+    const loadDashboard = async () => {
+      try {
+        const response = await getCoachDashboard()
+        setStats(response.data)
+      } catch (error) {
+        Swal.fire("Error", error.message, "error")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboard()
   }, [])
-
-  const handleSelectClient = async (client) => {
-    setSelectedClientId(client.id)
-    const detail = await getClientById(client.id)
-    setSelectedClient(detail)
-  }
-
-  const handleSavePlan = async (plan) => {
-    if (!selectedClient) {
-      return
-    }
-
-    try {
-      setSaving(true)
-      const updated = updateClientPlan(
-        selectedClient.id,
-        plan,
-        selectedClient.email,
-      )
-      setSelectedClient({
-        ...selectedClient,
-        coachPlan: updated.coachPlan,
-      })
-      await loadClients()
-
-      Swal.fire({
-        title: "Plan guardado",
-        text: "El plan del cliente se actualizó correctamente.",
-        icon: "success",
-        confirmButtonColor: "#16a34a",
-      })
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: error.message,
-        icon: "error",
-        confirmButtonColor: "#dc2626",
-      })
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const hasPlan = (client) =>
-    Boolean(
-      client.coachPlan?.objectives ||
-        client.coachPlan?.routine ||
-        client.coachPlan?.notes,
-    )
-
-  const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
 
   return (
     <div className="coach-dashboard">
-      <header className="users-dashboard-header">
-        <div>
-          <BrandLogo to="/" size="lg" className="users-dashboard-logo" />
-          <h1>Mis clientes</h1>
-          <p>
-            Gestiona a los usuarios registrados y asigna qué deben hacer en su
-            entrenamiento. Coach:{" "}
-            <strong>{coach?.full_name || coach?.name}</strong>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="welcome-btn welcome-btn-primary"
-          onClick={handleLogout}
-        >
-          Cerrar sesión
-        </button>
-      </header>
+      <PageHeader
+        title="Panel del coach"
+        subtitle={`Hola, ${coach?.full_name || coach?.name}. Revisa tus clases y horarios asignados.`}
+      />
 
       {loading ? (
-        <div className="users-dashboard-state">
-          <Spinner animation="border" variant="primary" />
-          <p>Cargando clientes...</p>
-        </div>
+        <LoadingState message="Cargando panel..." />
       ) : (
         <>
-          <p className="users-dashboard-count">
-            {clients.length}{" "}
-            {clients.length === 1 ? "cliente registrado" : "clientes registrados"}
-          </p>
+          <div className="stats-grid">
+            <article className="stat-card">
+              <span className="stat-card-label">Clases asignadas</span>
+              <strong className="stat-card-value">{stats?.total_classes ?? 0}</strong>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card-label">Horarios activos</span>
+              <strong className="stat-card-value">{stats?.total_schedules ?? 0}</strong>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card-label">Salas</span>
+              <strong className="stat-card-value">{stats?.total_rooms ?? 0}</strong>
+            </article>
+          </div>
 
-          <Row className="g-4 coach-dashboard-grid">
-            <Col lg={5} xl={4}>
-              <div className="users-dashboard-list-wrapper coach-panel">
-                <div className="coach-panel-header">
-                  <h2>Lista de clientes</h2>
-                </div>
-
-                {clients.length === 0 ? (
-                  <Alert variant="secondary" className="coach-empty-alert m-3">
-                    No hay usuarios registrados disponibles. Los administradores
-                    y coaches no aparecen en esta lista.
-                  </Alert>
-                ) : (
-                  <div className="coach-client-list-wrapper">
-                    <Table hover className="users-dashboard-list coach-client-list mb-0">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Cliente</th>
-                          <th>Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {clients.map((client, index) => (
-                          <tr
-                            key={client.id}
-                            className={
-                              selectedClientId === client.id
-                                ? "coach-client-row coach-client-row--active"
-                                : "coach-client-row"
-                            }
-                            onClick={() => handleSelectClient(client)}
-                          >
-                            <td>{index + 1}</td>
-                            <td>
-                              <span className="coach-client-name">
-                                {client.full_name || client.name}
-                              </span>
-                              <span className="coach-client-email">
-                                {client.email}
-                              </span>
-                            </td>
-                            <td>
-                              <span
-                                className={
-                                  hasPlan(client)
-                                    ? "users-dashboard-role users-dashboard-role--coach"
-                                    : "users-dashboard-role users-dashboard-role--user"
-                                }
-                              >
-                                {hasPlan(client) ? "Con plan" : "Sin plan"}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  </div>
-                )}
+          <div className="admin-dashboard-actions">
+            <Link to="/coach/mis-clases" className="users-dashboard-list-wrapper admin-action-card admin-action-card--sports">
+              <div className="admin-action-card-header">
+                <h2>Mis clases</h2>
               </div>
-            </Col>
-
-            <Col lg={7} xl={8}>
-              <div className="users-dashboard-list-wrapper coach-panel coach-panel-detail">
-                {!selectedClient ? (
-                  <div className="coach-dashboard-placeholder">
-                    <h2>Selecciona un cliente</h2>
-                    <p>
-                      Haz clic en un usuario de la lista para ver sus datos y
-                      editar el plan que debe seguir.
-                    </p>
-                  </div>
-                ) : (
-                  <ClientDetailPanel
-                    client={selectedClient}
-                    onSave={handleSavePlan}
-                    saving={saving}
-                  />
-                )}
+              <div className="admin-action-card-body">
+                <p>Consulta las clases que tienes asignadas con deporte, sala y horarios.</p>
+                <span className="admin-action-link">Ver clases →</span>
               </div>
-            </Col>
-          </Row>
+            </Link>
+
+            <Link to="/coach/mi-horario" className="users-dashboard-list-wrapper admin-action-card admin-action-card--schedules">
+              <div className="admin-action-card-header">
+                <h2>Mi horario</h2>
+              </div>
+              <div className="admin-action-card-body">
+                <p>Revisa tu agenda semanal con todos los bloques programados.</p>
+                <span className="admin-action-link">Ver horario →</span>
+              </div>
+            </Link>
+          </div>
         </>
       )}
     </div>

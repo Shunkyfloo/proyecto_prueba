@@ -1,14 +1,8 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import {
-  Button,
-  Card,
-  Form,
-  Spinner,
-  Table,
-} from "react-bootstrap"
+import { Button, Dropdown, Form, Spinner, Table } from "react-bootstrap"
 import Swal from "sweetalert2"
-import BrandLogo from "../../components/BrandLogo"
+import PageHeader from "../../components/layout/PageHeader"
 import SportFormModal from "../../components/sports/SportFormModal"
 import {
   createSport,
@@ -25,6 +19,11 @@ function SportsPage() {
   const [showModal, setShowModal] = useState(false)
   const [selectedSport, setSelectedSport] = useState(null)
   const [updatingStatusId, setUpdatingStatusId] = useState(null)
+
+  const sortedSports = useMemo(
+    () => [...sports].sort((a, b) => a.id - b.id),
+    [sports],
+  )
 
   const loadSports = useCallback(async () => {
     try {
@@ -117,61 +116,62 @@ function SportsPage() {
   }
 
   return (
-    <div className="admin-dashboard">
-      <header className="users-dashboard-header">
-        <div>
-          <BrandLogo to="/admin/dashboard" size="lg" className="users-dashboard-logo" />
-          <h1>Gestión de Deportes</h1>
-          <p>Administra los deportes ofrecidos por el club deportivo.</p>
-        </div>
+    <div className="admin-dashboard sports-page module-page">
+      <PageHeader
+        title="Gestión de deportes"
+        subtitle="Administra los deportes ofrecidos por el club."
+      >
         <Link to="/admin/dashboard" className="welcome-btn welcome-btn-secondary">
           Volver al panel
         </Link>
-      </header>
+        <Button className="theme-btn-outline" onClick={loadSports}>
+          Refrescar
+        </Button>
+        <Button className="theme-btn" onClick={openCreateModal}>
+          Nuevo deporte
+        </Button>
+      </PageHeader>
 
-      <Card className="shadow-sm admin-module-card admin-module-card--sports">
-        <Card.Header className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <h4 className="mb-0">Listado de deportes</h4>
-          <div className="d-flex gap-2">
-            <Button className="theme-btn-outline" onClick={loadSports}>
-              Refrescar
-            </Button>
-            <Button className="theme-btn" onClick={openCreateModal}>
-              Nuevo Deporte
-            </Button>
-          </div>
-        </Card.Header>
+      {loading ? (
+        <div className="users-dashboard-state">
+          <Spinner animation="border" />
+          <p>Cargando deportes...</p>
+        </div>
+      ) : (
+        <>
+          <p className="users-dashboard-count">
+            {sortedSports.length}{" "}
+            {sortedSports.length === 1
+              ? "deporte registrado"
+              : "deportes registrados"}
+          </p>
 
-        <Card.Body>
-          {loading ? (
-            <div className="text-center p-4">
-              <Spinner animation="border" />
-              <p className="mt-2">Cargando deportes...</p>
-            </div>
-          ) : sports.length === 0 ? (
-            <p className="text-center module-empty mb-0">
-              No hay deportes registrados todavía.
-            </p>
-          ) : (
-            <Table responsive striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Objetivo</th>
-                  <th>Duración</th>
-                  <th>Estado</th>
-                  <th>Fecha de creación</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sports.map((sport) => (
-                  <tr key={sport.id}>
-                    <td>{sport.name}</td>
-                    <td>{sport.objective}</td>
-                    <td>{sport.duration} min</td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
+          <div className="users-dashboard-list-wrapper sports-list-wrapper">
+            {sortedSports.length === 0 ? (
+              <p className="sports-list-empty">No hay deportes registrados todavía.</p>
+            ) : (
+              <Table responsive hover className="users-dashboard-list sports-list mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Objetivo</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th className="sports-list-actions-col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedSports.map((sport, index) => (
+                    <tr key={sport.id}>
+                      <td className="sports-list-index">{index + 1}</td>
+                      <td className="sports-list-name">{sport.name}</td>
+                      <td className="sports-list-objective" title={sport.objective}>
+                        {sport.objective}
+                      </td>
+                      <td className="sports-list-duration">{sport.duration} min</td>
+                      <td className="sports-list-status">
                         <Form.Check
                           type="switch"
                           id={`sport-status-${sport.id}`}
@@ -182,37 +182,40 @@ function SportsPage() {
                             handleStatusChange(sport, event.target.checked)
                           }
                         />
-                        <span
-                          className={`status-pill ${
-                            sport.status ? "status-pill--active" : "status-pill--inactive"
-                          }`}
-                        >
-                          {sport.status ? "Activo" : "Inactivo"}
-                        </span>
-                      </div>
-                    </td>
-                    <td>{formatSportDate(sport.created_at)}</td>
-                    <td>
-                      <Button
-                        className="theme-btn-warning btn-sm me-2"
-                        onClick={() => openEditModal(sport)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        className="theme-btn-danger btn-sm"
-                        onClick={() => handleDelete(sport)}
-                      >
-                        Eliminar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </Card.Body>
-      </Card>
+                      </td>
+                      <td className="sports-list-date">
+                        {formatSportDate(sport.created_at)}
+                      </td>
+                      <td className="sports-list-actions-col">
+                        <Dropdown align="end">
+                          <Dropdown.Toggle
+                            variant="link"
+                            className="users-actions-toggle"
+                            aria-label={`Opciones de ${sport.name}`}
+                          >
+                            ⋮
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu className="users-actions-menu">
+                            <Dropdown.Item onClick={() => openEditModal(sport)}>
+                              Editar
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              className="text-danger"
+                              onClick={() => handleDelete(sport)}
+                            >
+                              Eliminar
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </div>
+        </>
+      )}
 
       <SportFormModal
         show={showModal}

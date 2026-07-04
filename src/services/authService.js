@@ -93,4 +93,42 @@ export function logout() {
   localStorage.removeItem("user")
 }
 
+export async function getMe() {
+  if (USE_MOCK) {
+    const user = getUser()
+    if (!user) {
+      throw new Error("No autenticado")
+    }
+    return { ok: true, data: user }
+  }
+
+  return apiRequest("/auth/me")
+}
+
+export async function updateMe(profileData) {
+  if (USE_MOCK) {
+    const user = { ...getUser(), ...profileData }
+    saveSession(getToken(), user)
+    return { ok: true, data: user }
+  }
+
+  const response = await apiRequest("/auth/me", {
+    method: "PUT",
+    body: JSON.stringify(profileData),
+  })
+  saveSession(getToken(), response.data)
+  return response
+}
+
+export async function changePassword(passwords) {
+  if (USE_MOCK) {
+    return { ok: true, message: "Contraseña actualizada correctamente." }
+  }
+
+  return apiRequest("/auth/me/password", {
+    method: "PUT",
+    body: JSON.stringify(passwords),
+  })
+}
+
 export { API_URL }

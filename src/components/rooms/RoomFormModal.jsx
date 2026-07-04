@@ -3,28 +3,32 @@ import { Button, Form, Modal } from "react-bootstrap"
 
 const initialForm = {
   name: "",
-  objective: "",
-  duration: "",
+  description: "",
+  capacity: "",
+  location: "",
+  observation: "",
   status: true,
 }
 
-function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
+function RoomFormModal({ show, handleClose, handleSave, selectedRoom }) {
   const [formData, setFormData] = useState(initialForm)
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    if (selectedSport) {
+    if (selectedRoom) {
       setFormData({
-        name: selectedSport.name || "",
-        objective: selectedSport.objective || "",
-        duration: String(selectedSport.duration ?? ""),
-        status: selectedSport.status ?? true,
+        name: selectedRoom.name || "",
+        description: selectedRoom.description || "",
+        capacity: String(selectedRoom.capacity ?? ""),
+        location: selectedRoom.location || "",
+        observation: selectedRoom.observation || "",
+        status: selectedRoom.status ?? true,
       })
     } else {
       setFormData(initialForm)
     }
     setErrors({})
-  }, [selectedSport, show])
+  }, [selectedRoom, show])
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target
@@ -38,23 +42,17 @@ function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
   const validate = () => {
     const nextErrors = {}
 
-    if (!formData.name.trim()) {
-      nextErrors.name = "El nombre es obligatorio."
-    } else if (formData.name.trim().length < 3) {
+    if (!formData.name.trim() || formData.name.trim().length < 3) {
       nextErrors.name = "El nombre debe tener al menos 3 caracteres."
     }
 
-    if (!formData.objective.trim()) {
-      nextErrors.objective = "El objetivo es obligatorio."
-    } else if (formData.objective.trim().length < 5) {
-      nextErrors.objective = "El objetivo debe tener al menos 5 caracteres."
+    if (!formData.description.trim() || formData.description.trim().length < 5) {
+      nextErrors.description = "La descripción debe tener al menos 5 caracteres."
     }
 
-    const duration = Number(formData.duration)
-    if (!formData.duration) {
-      nextErrors.duration = "La duración es obligatoria."
-    } else if (Number.isNaN(duration) || duration < 1) {
-      nextErrors.duration = "La duración debe ser un número mayor a 0."
+    const capacity = Number(formData.capacity)
+    if (!formData.capacity || Number.isNaN(capacity) || capacity < 1) {
+      nextErrors.capacity = "La capacidad debe ser mayor a 0."
     }
 
     setErrors(nextErrors)
@@ -69,8 +67,10 @@ function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
 
     handleSave({
       name: formData.name.trim(),
-      objective: formData.objective.trim(),
-      duration: Number(formData.duration),
+      description: formData.description.trim(),
+      capacity: Number(formData.capacity),
+      location: formData.location.trim() || null,
+      observation: formData.observation.trim() || null,
       status: formData.status,
     })
   }
@@ -78,62 +78,75 @@ function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>
-          {selectedSport ? "Editar Deporte" : "Nuevo Deporte"}
-        </Modal.Title>
+        <Modal.Title>{selectedRoom ? "Editar Sala" : "Nueva Sala"}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Nombre</Form.Label>
             <Form.Control
-              type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               isInvalid={Boolean(errors.name)}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.name}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Objetivo</Form.Label>
+            <Form.Label>Descripción</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
-              name="objective"
-              value={formData.objective}
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              isInvalid={Boolean(errors.objective)}
+              isInvalid={Boolean(errors.description)}
             />
             <Form.Control.Feedback type="invalid">
-              {errors.objective}
+              {errors.description}
             </Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Duración (minutos)</Form.Label>
+            <Form.Label>Capacidad</Form.Label>
             <Form.Control
               type="number"
-              name="duration"
               min="1"
-              value={formData.duration}
+              name="capacity"
+              value={formData.capacity}
               onChange={handleChange}
-              isInvalid={Boolean(errors.duration)}
+              isInvalid={Boolean(errors.capacity)}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.duration}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.capacity}</Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
+            <Form.Label>Ubicación</Form.Label>
+            <Form.Control
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Observación</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
+              name="observation"
+              value={formData.observation}
+              onChange={handleChange}
+            />
+          </Form.Group>
+
+          <Form.Group>
             <Form.Check
               type="switch"
-              id="sport-status"
+              id="room-status"
               name="status"
-              label={formData.status ? "Activo" : "Inactivo"}
+              label={formData.status ? "Activa" : "Inactiva"}
               checked={formData.status}
               onChange={handleChange}
             />
@@ -152,4 +165,4 @@ function SportFormModal({ show, handleClose, handleSave, selectedSport }) {
   )
 }
 
-export default SportFormModal
+export default RoomFormModal

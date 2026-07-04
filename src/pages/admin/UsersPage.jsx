@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button, Card, Spinner, Table } from "react-bootstrap"
 import Swal from "sweetalert2"
+import PageHeader from "../../components/layout/PageHeader"
 import UserFormModal from "../../components/users/UserFormModal"
 import {
   createUser,
@@ -86,24 +87,20 @@ function UsersPage() {
   }
 
   return (
-    <div className="admin-dashboard">
-      <header className="users-dashboard-header mb-4">
-        <div>
-          <h4 className="mb-1">Gestión de Usuarios</h4>
-          <p className="mb-0 module-subtitle">Administra los usuarios del club desde la API.</p>
-        </div>
+    <div className="admin-dashboard module-page">
+      <PageHeader
+        title="Gestión de usuarios"
+        subtitle="Administra los usuarios del club desde la API."
+      >
         <Link to="/admin/dashboard" className="welcome-btn welcome-btn-secondary">
           Volver al panel
         </Link>
-      </header>
+        <Button className="theme-btn" onClick={openCreateModal}>
+          Nuevo usuario
+        </Button>
+      </PageHeader>
 
     <Card className="shadow-sm admin-module-card admin-module-card--users">
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <h4 className="mb-0">Listado de usuarios</h4>
-        <Button className="theme-btn" onClick={openCreateModal}>
-          Nuevo Usuario
-        </Button>
-      </Card.Header>
 
       <Card.Body>
         {loading ? (

@@ -88,10 +88,10 @@ function UserFormModal({ show, handleClose, handleSave,selectedUser }) {
  </Form.Group>
  </Modal.Body>
  <Modal.Footer>
- <Button variant="secondary" onClick={handleClose}>
+ <Button className="theme-btn-outline" onClick={handleClose}>
  Cancelar
  </Button>
- <Button variant="primary" type="submit">
+ <Button className="theme-btn" type="submit">
  Guardar
  </Button>
  </Modal.Footer>

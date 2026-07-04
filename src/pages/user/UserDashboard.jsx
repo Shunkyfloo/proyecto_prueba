@@ -1,117 +1,79 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Alert, Col, Row } from "react-bootstrap"
-import BrandLogo from "../../components/BrandLogo"
-import { getUser, logout } from "../../services/authService"
-import { getUserCoachPlan } from "../../services/userService"
-
-function formatTodayDate() {
-  return new Date().toLocaleDateString("es-CL", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
-}
+import { Link } from "react-router-dom"
+import Swal from "sweetalert2"
+import LoadingState from "../../components/common/LoadingState"
+import PageHeader from "../../components/layout/PageHeader"
+import { getMemberDashboard } from "../../services/memberService"
+import { getUser } from "../../services/authService"
 
 function UserDashboard() {
-  const navigate = useNavigate()
-  const sessionUser = getUser()
-  const [coachPlan, setCoachPlan] = useState(null)
-  const [loaded, setLoaded] = useState(false)
+  const user = getUser()
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const plan = getUserCoachPlan(sessionUser?.id, sessionUser?.email)
-    setCoachPlan(plan)
-    setLoaded(true)
-  }, [sessionUser?.id, sessionUser?.email])
+    const loadDashboard = async () => {
+      try {
+        const response = await getMemberDashboard()
+        setStats(response.data)
+      } catch (error) {
+        Swal.fire("Error", error.message, "error")
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
-
-  const hasPlan =
-    coachPlan &&
-    (coachPlan.objectives || coachPlan.routine || coachPlan.notes)
-
-  const todayLabel = formatTodayDate()
+    loadDashboard()
+  }, [])
 
   return (
     <div className="user-dashboard">
-      <header className="users-dashboard-header">
-        <div>
-          <BrandLogo to="/" size="lg" className="users-dashboard-logo" />
-          <h1>Mi entrenamiento de hoy</h1>
-          <p>
-            Hola, <strong>{sessionUser?.full_name || sessionUser?.name}</strong>.
-            Esto es lo que tu coach preparó para ti.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="welcome-btn welcome-btn-primary"
-          onClick={handleLogout}
-        >
-          Cerrar sesión
-        </button>
-      </header>
+      <PageHeader
+        title="Mi panel"
+        subtitle={`Hola, ${user?.full_name || user?.name}. Reserva clases y gestiona tus entrenamientos.`}
+      />
 
-      <p className="users-dashboard-count user-dashboard-date">{todayLabel}</p>
-
-      {!loaded ? null : !hasPlan ? (
-        <Alert variant="secondary" className="user-plan-empty users-dashboard-alert">
-          Tu coach aún no ha asignado un plan para hoy. Cuando lo haga, aparecerá
-          aquí automáticamente.
-        </Alert>
+      {loading ? (
+        <LoadingState message="Cargando panel..." />
       ) : (
-        <Row className="g-4 user-dashboard-grid">
-          {coachPlan.objectives && (
-            <Col md={12} lg={4}>
-              <article className="users-dashboard-list-wrapper user-plan-card">
-                <div className="user-plan-card-header">
-                  <h2>Objetivos</h2>
-                </div>
-                <div className="user-plan-card-body">
-                  <p>{coachPlan.objectives}</p>
-                </div>
-              </article>
-            </Col>
-          )}
+        <>
+          <div className="stats-grid">
+            <article className="stat-card">
+              <span className="stat-card-label">Clases disponibles</span>
+              <strong className="stat-card-value">{stats?.available_classes ?? 0}</strong>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card-label">Deportes</span>
+              <strong className="stat-card-value">{stats?.available_sports ?? 0}</strong>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card-label">Horarios</span>
+              <strong className="stat-card-value">{stats?.available_schedules ?? 0}</strong>
+            </article>
+          </div>
 
-          {coachPlan.routine && (
-            <Col md={12} lg={coachPlan.objectives ? 4 : 6}>
-              <article className="users-dashboard-list-wrapper user-plan-card user-plan-card--highlight">
-                <div className="user-plan-card-header">
-                  <h2>Qué hacer hoy</h2>
-                </div>
-                <div className="user-plan-card-body">
-                  <p className="user-plan-routine">{coachPlan.routine}</p>
-                </div>
-              </article>
-            </Col>
-          )}
+          <div className="admin-dashboard-actions">
+            <Link to="/user/clases" className="users-dashboard-list-wrapper admin-action-card admin-action-card--sports">
+              <div className="admin-action-card-header">
+                <h2>Clases disponibles</h2>
+              </div>
+              <div className="admin-action-card-body">
+                <p>Explora las clases del club y reserva tu cupo en segundos.</p>
+                <span className="admin-action-link">Ver clases →</span>
+              </div>
+            </Link>
 
-          {coachPlan.notes && (
-            <Col md={12} lg={coachPlan.objectives && coachPlan.routine ? 4 : 6}>
-              <article className="users-dashboard-list-wrapper user-plan-card">
-                <div className="user-plan-card-header">
-                  <h2>Notas del coach</h2>
-                </div>
-                <div className="user-plan-card-body">
-                  <p>{coachPlan.notes}</p>
-                </div>
-              </article>
-            </Col>
-          )}
-        </Row>
-      )}
-
-      {hasPlan && coachPlan.updatedAt && (
-        <p className="user-plan-updated">
-          Plan actualizado:{" "}
-          {new Date(coachPlan.updatedAt).toLocaleString("es-CL")}
-        </p>
+            <Link to="/user/reservas" className="users-dashboard-list-wrapper admin-action-card admin-action-card--rooms">
+              <div className="admin-action-card-header">
+                <h2>Mis reservas</h2>
+              </div>
+              <div className="admin-action-card-body">
+                <p>Consulta y cancela tus reservas activas cuando lo necesites.</p>
+                <span className="admin-action-link">Ver reservas →</span>
+              </div>
+            </Link>
+          </div>
+        </>
       )}
     </div>
   )
