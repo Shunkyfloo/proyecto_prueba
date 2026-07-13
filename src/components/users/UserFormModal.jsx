@@ -45,12 +45,12 @@ function UserFormModal({
 
     setFormData((prev) => ({
       ...prev,
-      value,
+      [name]: value,
     }))
 
     setErrors((prev) => ({
       ...prev,
-      "",
+      [name]: undefined,
     }))
   }
 

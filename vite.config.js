@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react"
 
 export default defineConfig({
   plugins: [react()],
-  base: "/proyecto_prueba/",
+  base: './',
   server: {
     proxy: {
       "/api": {
